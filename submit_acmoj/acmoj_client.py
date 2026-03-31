@@ -140,7 +140,19 @@ def main():
             print(f"Error: Failed to read code file: {e}")
             exit(1)
 
-        result = client.submit_code(args.problem_id, args.language, code_text)
+        # Get the git repository URL
+        try:
+            import subprocess
+            git_url = subprocess.check_output(['git', 'remote', 'get-url', 'origin'],
+                                             cwd='/workspace/problem_111',
+                                             text=True).strip()
+            # Remove credentials from URL for display
+            display_url = git_url.split('@')[-1] if '@' in git_url else git_url
+            print(f"Using git URL: {display_url}")
+            result = client.submit_git(args.problem_id, git_url)
+        except Exception as e:
+            print(f"Error: Failed to get git URL: {e}")
+            exit(1)
 
     elif args.command == "status":
         result = client.get_submission_detail(args.submission_id)
