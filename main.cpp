@@ -1,5 +1,9 @@
 #include <iostream>
-#include "src.hpp"
+
+// Wrap src.hpp in sjtu namespace like the OJ does
+namespace sjtu {
+    #include "src.hpp"
+}
 
 using namespace std;
 

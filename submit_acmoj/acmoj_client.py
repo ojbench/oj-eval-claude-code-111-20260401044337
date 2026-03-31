@@ -91,6 +91,14 @@ class ACMOJClient:
 
         return result
 
+    def submit_code(self, problem_id: int, language: str, code: str) -> Optional[Dict]:
+        data = {"language": language, "code": code}
+        result = self._make_request("POST", f"/problem/{problem_id}/submit", data=data)
+        if result and 'id' in result:
+            self._save_submission_id(result['id'])
+
+        return result
+
     def get_submission_detail(self, submission_id: int) -> Optional[Dict]:
         return self._make_request("GET", f"/submission/{submission_id}")
 
@@ -140,19 +148,7 @@ def main():
             print(f"Error: Failed to read code file: {e}")
             exit(1)
 
-        # Get the git repository URL
-        try:
-            import subprocess
-            git_url = subprocess.check_output(['git', 'remote', 'get-url', 'origin'],
-                                             cwd='/workspace/problem_111',
-                                             text=True).strip()
-            # Remove credentials from URL for display
-            display_url = git_url.split('@')[-1] if '@' in git_url else git_url
-            print(f"Using git URL: {display_url}")
-            result = client.submit_git(args.problem_id, git_url)
-        except Exception as e:
-            print(f"Error: Failed to get git URL: {e}")
-            exit(1)
+        result = client.submit_code(args.problem_id, args.language, code_text)
 
     elif args.command == "status":
         result = client.get_submission_detail(args.submission_id)
